@@ -6,32 +6,66 @@
  */
 
 // Given Parameters
-const props = {
-  velocity : 10000, // velocity (km/h)
-  acceleration : 3, // acceleration (m/s^2)
-  time : 7200, // seconds (1 hour)
-  distance : 0, // distance (km)
-  fuel : 5000, // remaining fuel (kg)
-  fuelBurnRate : 0.5 // fuel burn rate (kg/s)
- }
- 
- const conversionRate = 3.6;
- // Pick up an error with how the function below is called and make it robust to such errors
- const calculateNewVelocity = (props) => { 
- 
-   const { velocity, acceleration, time } = props
-   return velocity + ((acceleration * time) * conversionRate)
- }
- 
- const newDistance = props.distance + (props.velocity * (props.time / 3600)) //calcultes new distance
- const remainingFuel = props.fuel - props.fuelBurnRate * props.time //calculates remaining fuel
- const newVelocity = calculateNewVelocity(props) //calculates new velocity based on acceleration
- 
- console.log(`Corrected New Velocity: ${newVelocity} km/h`);
- console.log(`Corrected New Distance: ${newDistance} km`);
- console.log(`Corrected Remaining Fuel: ${remainingFuel} kg`);
+// Renamed the variables to make it more descriptive
+const velocity = { value: 10000, unit: "km/h" }; // velocity (km/h)
+const acceleration = { value: 3, unit: "m/s^2" }; // acceleration (m/s^2)
+const duration = { value: 3600, unit: "s" }; // seconds (1 hour)
+const initialDistance = { value: 0, unit: "km" }; // distance (km)
+const fuelAmount = { value: 5000, unit: "kg" }; // remaining fuel (kg)
+const fuelBurnRate = { value: 0.5, unit: "kg/s" }; // fuel burn rate (kg/s)
 
+// Function to calculate new velocity based on acceleration
+const calcNewVelocity = (acceleration, velocity, duration) => {
+  // Validate input parameters
+  if (
+    typeof acceleration !== "number" ||
+    typeof velocity !== "number" ||
+    typeof duration !== "number"
+  ) {
+    throw new Error("Invalid input parameters for calcNewVelocity function");
+  }
 
+  // Calculate new velocity based on acceleration
+  const newVelocity = velocity + acceleration * duration;
 
+  return newVelocity;
+};
 
+// Validate input parameters
+if (
+  velocity.unit !== "km/h" ||
+  acceleration.unit !== "m/s^2" ||
+  duration.unit !== "s" ||
+  initialDistance.unit !== "km" ||
+  fuelAmount.unit !== "kg" ||
+  fuelBurnRate.unit !== "kg/s"
+) {
+  throw new Error(
+    "Invalid unit of measurement for one or more input parameters"
+  );
+}
 
+// Convert units to a common unit (m/s, m, kg)
+const velocityInMetersPerSecond = velocity.value / 3.6;
+const initialDistanceInMeters = initialDistance.value * 1000;
+
+// Calculate new distance
+const newDistanceInMeters =
+  initialDistanceInMeters + velocityInMetersPerSecond * duration.value;
+const newDistanceInKilometers = newDistanceInMeters / 1000;
+
+// Calculate remaining fuel
+const remainingFuelInKilograms =
+  fuelAmount.value - fuelBurnRate.value * duration.value;
+
+// Calculate new velocity based on acceleration
+const newVelocityInMetersPerSecond = calcNewVelocity(
+  acceleration.value,
+  velocityInMetersPerSecond,
+  duration.value
+);
+const newVelocityInKilometersPerHour = newVelocityInMetersPerSecond * 3.6;
+
+console.log(`Corrected New Velocity: ${newVelocityInKilometersPerHour} km/h`);
+console.log(`Corrected New Distance: ${newDistanceInKilometers} km`);
+console.log(`Corrected Remaining Fuel: ${remainingFuelInKilograms} kg`);
